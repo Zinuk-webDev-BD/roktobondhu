@@ -13,8 +13,7 @@ const active = l.href === "/dashboard" ? path === l.href : path === l.href || pa
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`whitespace-nowrap border-b-2 px-3 py-2 ${
-              active ? "border-blood font-semibold text-ink" : "border-transparent text-slate hover:text-ink"
+className={`whitespace-nowrap border-b-2 px-2 py-2 sm:px-3 ${              active ? "border-blood font-semibold text-ink" : "border-transparent text-slate hover:text-ink"
             }`}
           >
             {l.label}
