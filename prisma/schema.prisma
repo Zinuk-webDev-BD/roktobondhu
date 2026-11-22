@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DONOR
+  HOSPITAL
+  ADMIN
+}
+
+enum BloodGroup {
+  A_POS
+  A_NEG
+  B_POS
+  B_NEG
+  AB_POS
+  AB_NEG
+  O_POS
+  O_NEG
+}
+
+enum Urgency {
+  NORMAL
+  URGENT
+  CRITICAL
+}
+
+enum RequestStatus {
+  PENDING
+  MATCHED
+  FULFILLED
+  CANCELLED
+  EXPIRED
+}
+
+enum BagStatus {
+  AVAILABLE
+  RESERVED
+  USED
+  EXPIRED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(DONOR)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  donorProfile DonorProfile?
+  requests     BloodRequest[]  @relation("RequesterRequests")
+  offers       DonationOffer[]
+  auditLogs    AuditLog[]
+}
+
+model DonorProfile {
+  id               String     @id @default(cuid())
+  userId           String     @unique
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bloodGroup       BloodGroup
+  dateOfBirth      DateTime
+  weightKg         Int
+  district         String
+  phone            String
+  lastDonationDate DateTime?
+  isAvailable      Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([bloodGroup, district])
+}
+
+model BloodRequest {
+  id          String        @id @default(cuid())
+  requesterId String
+  requester   User          @relation("RequesterRequests", fields: [requesterId], references: [id], onDelete: Restrict)
+  patientName String
+  bloodGroup  BloodGroup
+  units       Int
+  urgency     Urgency       @default(NORMAL)
+  status      RequestStatus @default(PENDING)
+  hospital    String
+  district    String
+  note        String?
+  expiresAt   DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  allocations Allocation[]
+  offers      DonationOffer[]
+
+  @@index([status, urgency, createdAt])
+  @@index([bloodGroup, district])
+}
+
+model BloodBag {
+  id         String     @id @default(cuid())
+  bloodGroup BloodGroup
+  status     BagStatus  @default(AVAILABLE)
+  expiryDate DateTime
+  // optimistic locking: প্রতিটি পরিবর্তনে বাড়বে
+  version    Int        @default(0)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  allocation Allocation?
+
+  @@index([bloodGroup, status, expiryDate])
+}
+
+model Allocation {
+  id             String       @id @default(cuid())
+  requestId      String
+  request        BloodRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  // একটি ব্যাগ কেবল একবারই বরাদ্দ হতে পারে (ডাটাবেস স্তরে নিশ্চিত)
+  bagId          String       @unique
+  bag            BloodBag     @relation(fields: [bagId], references: [id], onDelete: Restrict)
+  // একই অনুরোধ দুইবার জমা পড়লেও একবারই কার্যকর হবে
+  idempotencyKey String       @unique
+  createdAt      DateTime     @default(now())
+
+  @@index([requestId])
+}
+
+model DonationOffer {
+  id        String       @id @default(cuid())
+  requestId String
+  request   BloodRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  donorId   String
+  donor     User         @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  status    OfferStatus  @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([requestId, donorId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  resource   String?
+  resourceId String?
+  success    Boolean  @default(true)
+  ip         String?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+}
