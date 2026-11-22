@@ -125,7 +125,7 @@ export default function StockManager() {
 
   return (
     <div className="mt-8 space-y-8">
-      <section aria-labelledby="add-title" className="rounded-lg border border-line bg-surface p-5">
+      <section aria-labelledby="add-title" className="card rounded-lg border border-line bg-surface p-5">
         <h2 id="add-title" className="text-xl font-semibold">নতুন ব্যাগ যোগ করুন</h2>
         <form onSubmit={onAdd} noValidate className="mt-4 space-y-4">
           <FormMessage kind="error">{formError}</FormMessage>
@@ -199,7 +199,7 @@ export default function StockManager() {
           </p>
         </div>
 
-        <div className="mt-2 overflow-x-auto rounded-lg border border-line bg-surface">
+        <div className="mt-2 overflow-x-auto card rounded-lg border border-line bg-surface">
           <table className="w-full min-w-[34rem] text-left">
             <caption className="sr-only">রক্তের ব্যাগের তালিকা</caption>
             <thead className="border-b border-line bg-paper text-sm text-slate">

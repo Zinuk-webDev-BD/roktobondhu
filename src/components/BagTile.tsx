@@ -9,6 +9,9 @@ type Props = {
   index: number;
 };
 
+// কার্ড কোন দিক থেকে আসবে: বাঁ, ছোট থেকে বড়, বড় থেকে ছোট, ডান
+const enters = ["enter-left", "enter-zoom", "enter-zoomout", "enter-right"];
+
 // ঢেউয়ের আকার। ৩০ একক পর পর নকশা পুনরাবৃত্তি হয়, তাই চক্রটি জোড়া লেগে যায়
 function wavePath(y: number, bottom: number, amp: number) {
   let d = `M -20 ${y} q 7.5 ${-amp} 15 0`;
@@ -38,7 +41,10 @@ export default function BagTile({ label, available, expiringSoon, daysToNearest,
   const clipId = `clip-${label.replace("+", "pos").replace("-", "neg")}`;
 
   return (
-    <li className="flex flex-col items-center rounded-lg border border-line bg-surface px-3 pb-4 pt-5 text-center">
+    <li
+      className={`bag-card card ${enters[index % 4]} flex flex-col items-center rounded-lg border border-line bg-surface px-3 pb-4 pt-5 text-center`}
+      style={{ animationDelay: `${150 + index * 90}ms` }}
+    >
       <svg viewBox="0 0 80 112" className="h-32 w-24" role="img" aria-label={`${label} গ্রুপ: ${bn(available)}টি ব্যাগ`}>
         <defs>
           <clipPath id={clipId}>
@@ -47,9 +53,9 @@ export default function BagTile({ label, available, expiringSoon, daysToNearest,
         </defs>
 
         {/* ব্যাগের মুখ */}
-        <rect x="32" y="4" width="16" height="22" rx="4" fill="#1A242C" stroke="#9FACB4" strokeOpacity=".6" strokeWidth="2" />
+        <rect x="32" y="4" width="16" height="22" rx="4" fill="#1A2338" stroke="#A9B6C9" strokeOpacity=".6" strokeWidth="2" />
         {/* ব্যাগের ভেতরটা */}
-        <rect x="10" y={bodyTop} width="60" height={bodyH} rx="12" fill="#111820" />
+        <rect x="10" y={bodyTop} width="60" height={bodyH} rx="12" fill="#121A2C" />
 
         {/* রক্ত: পেছনে গাঢ় ঢেউ, সামনে উজ্জ্বল ঢেউ */}
         {!empty && (
@@ -64,12 +70,12 @@ export default function BagTile({ label, available, expiringSoon, daysToNearest,
         {/* ব্যাগের রেখা। স্টক শেষ হলে ডটেড লাল */}
         <rect
           x="10" y={bodyTop} width="60" height={bodyH} rx="12" fill="none"
-          stroke={empty ? "#FF6B73" : "#9FACB4"} strokeOpacity={empty ? 1 : 0.6} strokeWidth="2"
+          stroke={empty ? "#FF8A93" : "#A9B6C9"} strokeOpacity={empty ? 1 : 0.6} strokeWidth="2"
           strokeDasharray={empty ? "5 4" : undefined}
         />
         <text
           x="40" y="70" textAnchor="middle" fontSize="20" fontWeight="700"
-          fill="#E8ECEE" stroke="#111820" strokeWidth="4" paintOrder="stroke" aria-hidden="true"
+          fill="#EAF0F7" stroke="#121A2C" strokeWidth="4" paintOrder="stroke" aria-hidden="true"
         >
           {label}
         </text>

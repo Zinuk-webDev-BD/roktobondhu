@@ -3,27 +3,79 @@
 @tailwind utilities;
 
 :root { color-scheme: dark; }
-html { background: #111820; color: #E8ECEE; }
+html {
+  min-height: 100%;
+  background: linear-gradient(160deg, #101a2f 0%, #161a30 50%, #231827 100%) fixed;
+  color: #EAF0F7;
+}
 body {
+  position: relative;
   min-height: 100vh;
   font-family: var(--font-bn), system-ui, sans-serif;
   line-height: 1.7;
-  /* ওপরে হালকা লাল আভা */
-  background: radial-gradient(1000px 420px at 50% -140px, rgba(198, 42, 54, 0.16), transparent 70%);
 }
 
-::placeholder { color: #75838C; }
-select option { background: #1A242C; color: #E8ECEE; }
-:focus-visible { outline: 3px solid #FF6B73; outline-offset: 2px; }
+/* ওপরে লালচে আর নিচে নীলচে নরম আলো, ধীরে ভাসে */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(600px 420px at 18% 8%, rgba(209, 47, 60, 0.18), transparent 70%),
+    radial-gradient(720px 520px at 88% 92%, rgba(80, 130, 210, 0.16), transparent 70%);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(4%, 3%, 0); }
+}
 
-/* শিরোনাম ওপরে উঠে আসে */
+::placeholder { color: #8493A8; }
+select option { background: #1A2338; color: #EAF0F7; }
+:focus-visible { outline: 3px solid #FF8A93; outline-offset: 2px; }
+::selection { background: rgba(209, 47, 60, 0.5); color: #fff; }
+
+/* স্ক্রলবার */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(150, 170, 210, 0.25); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 138, 147, 0.5); }
+
+/* শিরোনামে গ্রেডিয়েন্ট */
+h1 {
+  padding-block: 0.15em;
+  background: linear-gradient(90deg, #ffffff 0%, #cfe0ff 55%, #ffb3ba 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* হেডার: ওপরে আটকে থাকে, ঝাপসা কাচের মতো */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+header a { transition: color 200ms ease; }
+header a:hover { color: #ffffff; }
+
+/* পেজ খুললে উপাদানগুলো একে একে ওপরে উঠে আসে */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .rise { animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+main > * { animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+main > *:nth-child(2) { animation-delay: 80ms; }
+main > *:nth-child(3) { animation-delay: 160ms; }
+main > *:nth-child(4) { animation-delay: 240ms; }
+main > *:nth-child(5) { animation-delay: 320ms; }
 
-/* ব্যাগ নিচ থেকে ভরে ওঠে (শিরোনামের পর শুরু) */
+/* ব্যাগ নিচ থেকে ভরে ওঠে */
 @keyframes bag-fill {
   from { transform: scaleY(0); }
   to { transform: scaleY(1); }
@@ -42,13 +94,159 @@ select option { background: #1A242C; color: #E8ECEE; }
 .bag-wave { animation: wave-move 2.6s linear infinite; }
 .bag-wave-back { animation: wave-move 3.8s linear infinite reverse; }
 
+/* কার্ড: কাচের মতো, মাউস নিলে ধার জ্বলে */
+.card {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 250ms ease, box-shadow 250ms ease;
+}
+.card:hover {
+  border-color: rgba(255, 138, 147, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* ব্যাগের কার্ড: ওপরে ওঠে, লাল আভা, আলোর ঝলক */
+.bag-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1), border-color 300ms ease, box-shadow 300ms ease;
+}
+.bag-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.09) 50%, transparent 65%);
+  transform: translateX(-120%);
+}
+.bag-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 138, 147, 0.6);
+  box-shadow: 0 14px 40px rgba(209, 47, 60, 0.28), 0 0 0 1px rgba(255, 138, 147, 0.2);
+}
+.bag-card:hover::before { transform: translateX(120%); transition: transform 700ms ease; }
+.bag-card svg { transition: transform 350ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.bag-card:hover svg { transform: translateY(-3px) scale(1.07); }
+.bag-card:hover .bag-wave { animation-duration: 1.2s; }
+.bag-card:hover .bag-wave-back { animation-duration: 1.8s; }
+
+/* টেবিল: সারি একে একে ওঠে, মাউস নিলে জ্বলে */
+tbody tr {
+  animation: rise 500ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  transition: background-color 200ms ease;
+}
+tbody tr:nth-child(2) { animation-delay: 40ms; }
+tbody tr:nth-child(3) { animation-delay: 80ms; }
+tbody tr:nth-child(4) { animation-delay: 120ms; }
+tbody tr:nth-child(5) { animation-delay: 160ms; }
+tbody tr:nth-child(6) { animation-delay: 200ms; }
+tbody tr:nth-child(7) { animation-delay: 240ms; }
+tbody tr:nth-child(8) { animation-delay: 280ms; }
+tbody tr:nth-child(n+9) { animation-delay: 320ms; }
+tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
 
 @layer components {
-  .field { @apply w-full rounded-md border border-line bg-surface px-3 py-2.5 text-base text-ink; }
+  .field { @apply w-full rounded-md border border-line bg-surface px-3 py-2.5 text-base text-ink transition duration-200 focus:border-blood-text; }
+  .field:focus { box-shadow: 0 0 0 4px rgba(255, 138, 147, 0.16); outline: none; }
   .field[aria-invalid="true"] { @apply border-blood-text; }
-  .btn { @apply inline-flex items-center justify-center rounded-md bg-blood px-5 py-2.5 font-medium text-white transition-colors hover:bg-blood-dark disabled:opacity-60; }
-  .btn-quiet { @apply inline-flex items-center justify-center rounded-md border border-line bg-surface px-4 py-2 text-ink transition-colors hover:bg-raised; }
+  .btn {
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-md bg-blood px-5 py-2.5 font-medium text-white shadow-lg shadow-blood/25 transition duration-200 hover:-translate-y-0.5 hover:bg-blood-dark hover:shadow-blood/40 active:translate-y-0 disabled:opacity-60;
+  }
+  .btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+    transform: translateX(-120%);
+  }
+  .btn:hover::after { transform: translateX(120%); transition: transform 600ms ease; }
+  .btn-quiet { @apply inline-flex items-center justify-center rounded-md border border-line bg-surface px-4 py-2 text-ink transition duration-200 hover:-translate-y-0.5 hover:border-blood-text hover:bg-raised; }
 }
+/* ইনপুট ঘরে লেখা পরিষ্কার রাখতে */
+.field { background-color: rgba(18, 26, 44, 0.88); }
+
+/* ড্যাশবোর্ডের প্রবেশ অ্যানিমেশন */
+body { overflow-x: clip; }
+
+@keyframes enter-left {
+  from { opacity: 0; transform: translateX(-80px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes enter-right {
+  from { opacity: 0; transform: translateX(80px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes enter-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes enter-zoom {
+  from { opacity: 0; transform: scale(0.6); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes enter-zoomout {
+  from { opacity: 0; transform: scale(1.5); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.enter-left { animation: enter-left 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-right { animation: enter-right 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-up { animation: enter-up 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-zoom { animation: enter-zoom 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-zoomout { animation: enter-zoomout 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+
+/* footer যেন পেজের নিচেই থাকে */
+body > .min-h-screen { min-height: auto; flex: 1 0 auto; }
+
+/* হার্টবিট রেখা আঁকা হয়, তারপর মিলিয়ে যায় */
+.ecg { stroke-dasharray: 100; stroke-dashoffset: 100; animation: ecg 4s linear infinite; }
+@keyframes ecg {
+  0% { stroke-dashoffset: 100; opacity: 1; }
+  70% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* navbar: নিচে আলো-ছায়ার লাল রেখা, লিংকে মাউস নিলে ওপরে ওঠে */
+header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 138, 147, 0.7), transparent);
+}
+header nav a, header a { transition: color 200ms ease, transform 200ms ease; }
+header nav a:hover { transform: translateY(-2px); }
+/* স্ক্রলে আসার আগে লুকানো থাকে */
+.reveal-hidden { opacity: 0; }
+/* প্রশ্নোত্তর বাক্স */
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] .chev { transform: rotate(180deg); }
+details[open] { border-color: rgba(255, 138, 147, 0.4); }
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+details[open] > .faq-body { animation: faq-open 350ms ease backwards; }
+
+/* ভেসে আসার অ্যানিমেশন */
+@keyframes enter-left { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes enter-right { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes enter-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes enter-zoom { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes enter-zoomout { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: none; } }
+.enter-left { animation: enter-left 650ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-right { animation: enter-right 650ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-up { animation: enter-up 650ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-zoom { animation: enter-zoom 650ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.enter-zoomout { animation: enter-zoomout 650ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+
+.card { transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease; }
+.card:hover { transform: translateY(-3px); border-color: rgba(255, 107, 115, 0.45); box-shadow: 0 10px 30px -12px rgba(198, 42, 54, 0.35); }
