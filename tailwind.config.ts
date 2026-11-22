@@ -5,12 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#1D2326",
-        slate: "#5B6770",
-        paper: "#F6F7F5",
-        line: "#DDE1DE",
-        blood: { DEFAULT: "#B3202A", dark: "#8E1821", soft: "#F6E3E4" },
-        ok: "#2F6B4F",
+        ink: "#E8ECEE",
+        slate: "#9FACB4",
+        paper: "#111820",
+        surface: "#1A242C",
+        raised: "#243039",
+        line: "#34424D",
+        blood: { DEFAULT: "#C62A36", dark: "#A31F2A", soft: "#2E1A1F", text: "#FF6B73" },
+        ok: "#5FD39B",
+        "ok-soft": "#12261D",
+        warn: "#F2C660",
+        "warn-soft": "#2B2210",
       },
       fontFamily: { sans: ["var(--font-bn)", "system-ui", "sans-serif"] },
     },

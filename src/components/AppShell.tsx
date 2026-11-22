@@ -19,9 +19,9 @@ export default function AppShell({ user, children }: { user: CurrentUser; childr
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-line bg-white">
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-5 py-3">
-          <Link href="/dashboard" className="flex items-center gap-2 text-lg font-bold text-blood">
+          <Link href="/dashboard" className="flex items-center gap-2 text-lg font-bold text-blood-text">
             <DropMark />
             রক্তবন্ধু
           </Link>

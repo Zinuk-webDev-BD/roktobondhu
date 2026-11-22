@@ -2,18 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
-html { background: #F6F7F5; color: #1D2326; }
-body { font-family: var(--font-bn), system-ui, sans-serif; line-height: 1.7; }
+:root { color-scheme: dark; }
+html { background: #111820; color: #E8ECEE; }
+body {
+  min-height: 100vh;
+  font-family: var(--font-bn), system-ui, sans-serif;
+  line-height: 1.7;
+  /* ওপরে হালকা লাল আভা */
+  background: radial-gradient(1000px 420px at 50% -140px, rgba(198, 42, 54, 0.16), transparent 70%);
+}
 
-:focus-visible { outline: 3px solid #B3202A; outline-offset: 2px; }
+::placeholder { color: #75838C; }
+select option { background: #1A242C; color: #E8ECEE; }
+:focus-visible { outline: 3px solid #FF6B73; outline-offset: 2px; }
+
+/* শিরোনাম ওপরে উঠে আসে */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* ব্যাগ নিচ থেকে ভরে ওঠে (শিরোনামের পর শুরু) */
+@keyframes bag-fill {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.bag-fill {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: bag-fill 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(250ms + var(--i, 0) * 90ms);
+}
+
+/* রক্তের উপরিতলের ঢেউ */
+@keyframes wave-move {
+  to { transform: translateX(-30px); }
+}
+.bag-wave { animation: wave-move 2.6s linear infinite; }
+.bag-wave-back { animation: wave-move 3.8s linear infinite reverse; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
 
 @layer components {
-  .field { @apply w-full rounded-md border border-line bg-white px-3 py-2.5 text-base text-ink; }
-  .field[aria-invalid="true"] { @apply border-blood; }
+  .field { @apply w-full rounded-md border border-line bg-surface px-3 py-2.5 text-base text-ink; }
+  .field[aria-invalid="true"] { @apply border-blood-text; }
   .btn { @apply inline-flex items-center justify-center rounded-md bg-blood px-5 py-2.5 font-medium text-white transition-colors hover:bg-blood-dark disabled:opacity-60; }
-  .btn-quiet { @apply inline-flex items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-ink hover:bg-paper; }
+  .btn-quiet { @apply inline-flex items-center justify-center rounded-md border border-line bg-surface px-4 py-2 text-ink transition-colors hover:bg-raised; }
 }

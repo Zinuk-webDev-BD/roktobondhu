@@ -12,7 +12,7 @@ export default async function Dashboard() {
     <main id="main" className="mx-auto max-w-5xl px-5 py-10">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
         <div>
-          <p className="font-semibold text-blood">রক্তবন্ধু</p>
+          <p className="font-semibold text-blood-text">রক্তবন্ধু</p>
           <h1 className="text-2xl font-bold">স্বাগতম, {user.name}</h1>
           <p className="text-slate">ভূমিকা: {roleLabel[user.role]}</p>
         </div>

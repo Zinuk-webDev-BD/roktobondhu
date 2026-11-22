@@ -49,7 +49,7 @@ export default function RegisterPage() {
 
   return (
     <main id="main" className="mx-auto max-w-lg px-5 py-14">
-      <Link href="/" className="font-semibold text-blood">রক্তবন্ধু</Link>
+      <Link href="/" className="font-semibold text-blood-text">রক্তবন্ধু</Link>
       <h1 className="mt-4 text-3xl font-bold">নতুন অ্যাকাউন্ট</h1>
 
       <form onSubmit={onSubmit} noValidate className="mt-6 space-y-4">
@@ -60,7 +60,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-2 gap-3">
             {([["DONOR", "রক্তদাতা"], ["HOSPITAL", "হাসপাতাল / অনুরোধকারী"]] as const).map(([val, label]) => (
               <label key={val}
-                className={`cursor-pointer rounded-md border px-3 py-2.5 text-center ${role === val ? "border-blood bg-blood-soft font-medium" : "border-line bg-white"}`}>
+                className={`cursor-pointer rounded-md border px-3 py-2.5 text-center ${role === val ? "border-blood bg-blood-soft font-medium" : "border-line bg-surface"}`}>
                 <input type="radio" name="roleChoice" value={val} checked={role === val}
                   onChange={() => setRole(val)} className="sr-only" />
                 {label}
@@ -127,7 +127,7 @@ export default function RegisterPage() {
           {busy ? "অ্যাকাউন্ট খোলা হচ্ছে..." : "অ্যাকাউন্ট খুলুন"}
         </button>
         <p className="text-center text-slate">
-          আগেই অ্যাকাউন্ট আছে? <Link href="/login" className="font-medium text-blood underline">লগইন করুন</Link>
+          আগেই অ্যাকাউন্ট আছে? <Link href="/login" className="font-medium text-blood-text underline">লগইন করুন</Link>
         </p>
       </form>
     </main>

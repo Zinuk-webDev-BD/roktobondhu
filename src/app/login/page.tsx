@@ -59,7 +59,7 @@ function LoginForm() {
         {busy ? "লগইন হচ্ছে..." : "লগইন করুন"}
       </button>
       <p className="text-center text-slate">
-        অ্যাকাউন্ট নেই? <Link href="/register" className="font-medium text-blood underline">নতুন অ্যাকাউন্ট খুলুন</Link>
+        অ্যাকাউন্ট নেই? <Link href="/register" className="font-medium text-blood-text underline">নতুন অ্যাকাউন্ট খুলুন</Link>
       </p>
     </form>
   );
@@ -68,7 +68,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <main id="main" className="mx-auto max-w-md px-5 py-14">
-      <Link href="/" className="font-semibold text-blood">রক্তবন্ধু</Link>
+      <Link href="/" className="font-semibold text-blood-text">রক্তবন্ধু</Link>
       <h1 className="mt-4 text-3xl font-bold">লগইন</h1>
       <Suspense>
         <LoginForm />

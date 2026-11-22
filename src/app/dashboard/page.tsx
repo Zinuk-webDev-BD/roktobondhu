@@ -14,19 +14,21 @@ export default async function Dashboard() {
 
   return (
     <>
-      <p className="text-slate">স্বাগতম, {user.name}</p>
-      <h1 className="mt-1 text-3xl font-bold">আজকের রক্তের স্টক</h1>
-
-      <p className="mt-3 max-w-2xl text-lg">
-        মোট {bn(stock.total)}টি ব্যাগ প্রস্তুত আছে।
-        {stock.expiringSoon > 0 && ` ${bn(stock.expiringSoon)}টি ব্যাগের মেয়াদ ৭ দিনের মধ্যে শেষ হবে।`}
-        {emptyGroups.length > 0 && ` ${emptyGroups.join(", ")} গ্রুপের কোনো ব্যাগ নেই।`}
-      </p>
+      <div className="rise">
+        <p className="text-slate">স্বাগতম, {user.name}</p>
+        <h1 className="mt-1 text-3xl font-bold">আজকের রক্তের স্টক</h1>
+        <p className="mt-3 max-w-2xl text-lg">
+          মোট {bn(stock.total)}টি ব্যাগ প্রস্তুত আছে।
+          {stock.expiringSoon > 0 && ` ${bn(stock.expiringSoon)}টি ব্যাগের মেয়াদ ৭ দিনের মধ্যে শেষ হবে।`}
+          {emptyGroups.length > 0 && ` ${emptyGroups.join(", ")} গ্রুপের কোনো ব্যাগ নেই।`}
+        </p>
+      </div>
 
       <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {stock.rows.map((r) => (
+        {stock.rows.map((r, i) => (
           <BagTile
             key={r.bloodGroup}
+            index={i}
             label={bloodGroupLabel[r.bloodGroup]}
             available={r.available}
             expiringSoon={r.expiringSoon}
