@@ -2,26 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html { background: #F6F7F5; color: #1D2326; }
+body { font-family: var(--font-bn), system-ui, sans-serif; line-height: 1.7; }
+
+:focus-visible { outline: 3px solid #B3202A; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+@layer components {
+  .field { @apply w-full rounded-md border border-line bg-white px-3 py-2.5 text-base text-ink; }
+  .field[aria-invalid="true"] { @apply border-blood; }
+  .btn { @apply inline-flex items-center justify-center rounded-md bg-blood px-5 py-2.5 font-medium text-white transition-colors hover:bg-blood-dark disabled:opacity-60; }
+  .btn-quiet { @apply inline-flex items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-ink hover:bg-paper; }
 }
