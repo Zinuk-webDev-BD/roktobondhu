@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma skills sync || exit 0"
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -16,13 +16,14 @@
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
-    "zod": "^4.6.7"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^18.0.10",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "postcss": "^8",
