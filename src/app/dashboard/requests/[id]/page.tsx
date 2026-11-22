@@ -12,7 +12,7 @@ import type { RequestStatus } from "@/lib/labels";
 import { StatusBadge, UrgencyBadge } from "@/components/StatusBadge";
 import RequestTimeline from "@/components/RequestTimeline";
 import RequestActions from "@/components/RequestActions";
-
+import AllocationSection from "@/components/AllocationSection";
 export const metadata = { title: "অনুরোধের বিস্তারিত | রক্তবন্ধু" };
 
 export default async function RequestDetail({ params }: { params: { id: string } }) {
@@ -101,7 +101,7 @@ export default async function RequestDetail({ params }: { params: { id: string }
           defaults={{ units: request.units, urgency: request.urgency, expiresAt: toInputDate(request.expiresAt), note: request.note ?? "" }}
         />
       </div>
-
+      <AllocationSection requestId={request.id} requestGroup={request.bloodGroup} status={status} role={user.role} />
       {/* যে দাতারা সাড়া দিয়েছেন */}
       <section className="mt-12" aria-labelledby="offers-title">
         <h2 id="offers-title" className="text-2xl font-bold">

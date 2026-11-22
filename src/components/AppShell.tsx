@@ -20,8 +20,12 @@ export default function AppShell({ user, children }: { user: CurrentUser; childr
   }
   if (user.role === "HOSPITAL") links.push({ href: "/dashboard/requests", label: "রক্তের অনুরোধ" });
   if (user.role === "ADMIN") {
-    links.push({ href: "/dashboard/requests", label: "সব অনুরোধ" }, { href: "/admin/stock", label: "ব্যাগ ব্যবস্থাপনা" });
-  }
+    links.push(
+      { href: "/dashboard/requests", label: "সব অনুরোধ" },
+      { href: "/admin/stock", label: "ব্যাগ ব্যবস্থাপনা" },
+      { href: "/dashboard/audit", label: "অডিট লগ" },
+      { href: "/dashboard/race-demo", label: "একযোগে পরীক্ষা" }
+    );  }
 
   return (
     <div className="min-h-screen">

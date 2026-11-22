@@ -4,8 +4,9 @@ import { requireUser, clientIp, type CurrentUser } from "@/lib/auth";
 import { audit } from "@/lib/audit";
 import { fieldErrors } from "@/lib/validation";
 import { requestEditSchema } from "@/lib/requestSchemas";
-import { canTransition, DELETABLE } from "@/lib/requestFlow";
-import { statusLabel, type RequestStatus } from "@/lib/labels";
+import { DELETABLE } from "@/lib/requestFlow";
+import { cancelWithRelease } from "@/lib/allocation";
+import { allocErrorResponse } from "@/lib/allocHttp";
 
 async function authorize(id: string, user: CurrentUser, req: Request) {
   const found = await db.bloodRequest.findUnique({ where: { id } });
@@ -42,24 +43,18 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   try {
-    // বাতিল
+    // বাতিল: বরাদ্দ থাকলে ব্যাগ স্টকে ফেরে (একই transaction-এ)
     if (body.action === "cancel") {
-      if (!canTransition(found.status as RequestStatus, "CANCELLED")) {
-        return NextResponse.json(
-          { error: `'${statusLabel[found.status as RequestStatus]}' অবস্থার অনুরোধ বাতিল করা যায় না` },
-          { status: 409 }
-        );
-      }
-      // অবস্থা ঠিক আগের মতো থাকলেই বদলাবে; ইতিমধ্যে বদলে গেলে count = 0
-      const res = await db.bloodRequest.updateMany({
-        where: { id: found.id, status: found.status },
-        data: { status: "CANCELLED" },
+      const res = await cancelWithRelease(found.id);
+      await audit({
+        actorId: r.user.id,
+        action: "REQUEST_CANCEL",
+        resource: "BloodRequest",
+        resourceId: found.id,
+        ip: clientIp(req),
+        meta: { releasedBags: res.released },
       });
-      if (res.count === 0) {
-        return NextResponse.json({ error: "অনুরোধের অবস্থা এইমাত্র বদলে গেছে। পেজ রিফ্রেশ করুন" }, { status: 409 });
-      }
-      await audit({ actorId: r.user.id, action: "REQUEST_CANCEL", resource: "BloodRequest", resourceId: found.id, ip: clientIp(req) });
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: true, released: res.released });
     }
 
     // সম্পাদনা: শুধু অপেক্ষমাণ অবস্থায়
@@ -81,6 +76,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     await audit({ actorId: r.user.id, action: "REQUEST_UPDATE", resource: "BloodRequest", resourceId: found.id, ip: clientIp(req) });
     return NextResponse.json({ ok: true });
   } catch (e) {
+    const resp = allocErrorResponse(e);
+    if (resp) return resp;
     console.error("request update failed", e);
     return NextResponse.json({ error: "পরিবর্তন করা যায়নি। আবার চেষ্টা করুন" }, { status: 500 });
   }
