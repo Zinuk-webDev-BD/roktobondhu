@@ -117,8 +117,7 @@ export default async function AuditPage({ searchParams }: { searchParams: { acti
                     <span className="font-mono text-xs text-slate">{l.action}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-2 py-0.5 text-sm ${l.success ? "bg-ok-soft text-ok" : "bg-blood-soft text-blood-text"}`}>
-                      {l.success ? "সফল" : "ব্যর্থ"}
+<span className={`rounded px-2 py-0.5 text-sm ${l.success ? "bg-ok-soft text-ok" : "bg-blood-soft text-blood-text"}`}>                      {l.success ? "সফল" : "ব্যর্থ"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-slate">
