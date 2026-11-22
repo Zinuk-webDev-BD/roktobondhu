@@ -5,10 +5,12 @@ import { loginSchema, fieldErrors } from "@/lib/validation";
 import { signSession, COOKIE_NAME, cookieOptions } from "@/lib/session";
 import { audit } from "@/lib/audit";
 import { clientIp } from "@/lib/auth";
-import { rateLimit } from "@/lib/rateLimit";
+import { rateLimit, rateLimitReset } from "@/lib/rateLimit";
 
 // ইমেইল আছে কি না বাইরে থেকে বোঝা যাতে না যায়
 const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing", 12);
+
+const WINDOW_MS = 15 * 60 * 1000;
 
 export async function POST(req: Request) {
   const ip = clientIp(req) ?? "unknown";
@@ -26,13 +28,19 @@ export async function POST(req: Request) {
   }
   const { email, password } = parsed.data;
 
-  // ১৫ মিনিটে ৫ বারের বেশি চেষ্টা নয়
-  const rl = rateLimit(`login:${ip}:${email}`, 5, 15 * 60 * 1000);
-  if (!rl.ok) {
+  // দুই স্তরের সীমা:
+  // ১) একই IP ও একই ইমেইলে ১৫ মিনিটে ৫ বার (একজনের পাসওয়ার্ড আন্দাজ আটকানো)
+  // ২) একই IP থেকে ১৫ মিনিটে মোট ২০ বার (ইমেইল বদলে বদলে চেষ্টা আটকানো)
+  const pairKey = `login:${ip}:${email.toLowerCase()}`;
+  const pairRl = rateLimit(pairKey, 5, WINDOW_MS);
+  const ipRl = rateLimit(`login-ip:${ip}`, 20, WINDOW_MS);
+
+  if (!pairRl.ok || !ipRl.ok) {
+    const wait = Math.max(pairRl.retryAfterSec, ipRl.retryAfterSec);
     await audit({ action: "AUTH_LOGIN_BLOCKED", success: false, ip, meta: { email } });
     return NextResponse.json(
-      { error: `অনেকবার ভুল চেষ্টা হয়েছে। ${Math.ceil(rl.retryAfterSec / 60)} মিনিট পরে আবার চেষ্টা করুন` },
-      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      { error: `অনেকবার ভুল চেষ্টা হয়েছে। ${Math.ceil(wait / 60)} মিনিট পরে আবার চেষ্টা করুন` },
+      { status: 429, headers: { "Retry-After": String(wait) } }
     );
   }
 
@@ -44,6 +52,9 @@ export async function POST(req: Request) {
       await audit({ actorId: user?.id, action: "AUTH_LOGIN_FAILED", success: false, ip, meta: { email } });
       return NextResponse.json({ error: "ইমেইল বা পাসওয়ার্ড সঠিক নয়" }, { status: 401 });
     }
+
+    // সফল লগইনে এই ইমেইলের গণনা শূন্য
+    rateLimitReset(pairKey);
 
     await audit({ actorId: user.id, action: "AUTH_LOGIN", ip });
     const token = await signSession({ sub: user.id, role: user.role, name: user.name });

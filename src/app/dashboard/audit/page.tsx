@@ -18,6 +18,9 @@ const labels: Record<string, string> = {
   PROFILE_UPDATE: "প্রোফাইল বদল",
   ACCESS_DENIED: "অনুমতি ছাড়া চেষ্টা (আটকানো হয়েছে)",
   RACE_DEMO: "একযোগে পরীক্ষা",
+    AUTH_LOGIN: "লগইন",
+  AUTH_LOGIN_FAILED: "লগইন ব্যর্থ (ভুল তথ্য)",
+  AUTH_LOGIN_BLOCKED: "লগইন আটকানো (অনেকবার চেষ্টা)",
 };
 
 const fmt = new Intl.DateTimeFormat("bn-BD", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Dhaka" });
