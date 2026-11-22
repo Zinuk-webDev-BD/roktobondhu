@@ -75,6 +75,21 @@ async function main() {
     bags.push({ bloodGroup: "B_POS", expiryDate: daysFromNow(-2) }); // মেয়াদোত্তীর্ণ: সিস্টেম নিজে বাদ দেবে
     await db.bloodBag.createMany({ data: bags });
   }
+    // নমুনা অনুরোধ (থাকলে আবার বানাবে না)
+  if ((await db.bloodRequest.count()) === 0) {
+    const h1 = await db.user.findUniqueOrThrow({ where: { email: "hospital1@roktobondhu.test" } });
+    const h2 = await db.user.findUniqueOrThrow({ where: { email: "hospital2@roktobondhu.test" } });
+    await db.bloodRequest.createMany({
+      data: [
+        // দুই হাসপাতাল একই O- চাইছে, অথচ স্টকে মাত্র ১টি ব্যাগ: A05 ডেমোর দৃশ্য
+        { requesterId: h1.id, patientName: "আব্দুল করিম", bloodGroup: "O_NEG", units: 1, urgency: "CRITICAL", hospital: h1.name, district: "ঢাকা", note: "অস্ত্রোপচারের জন্য জরুরি", expiresAt: daysFromNow(2) },
+        { requesterId: h2.id, patientName: "ফাতেমা বেগম", bloodGroup: "O_NEG", units: 1, urgency: "CRITICAL", hospital: h2.name, district: "চট্টগ্রাম", expiresAt: daysFromNow(2) },
+        { requesterId: h1.id, patientName: "শিউলি আক্তার", bloodGroup: "A_POS", units: 2, urgency: "URGENT", hospital: h1.name, district: "ঢাকা", expiresAt: daysFromNow(5) },
+        { requesterId: h1.id, patientName: "মোহাম্মদ রাসেল", bloodGroup: "B_NEG", units: 1, urgency: "NORMAL", hospital: h1.name, district: "ঢাকা", expiresAt: daysFromNow(20) },
+        { requesterId: h2.id, patientName: "নাসরিন সুলতানা", bloodGroup: "AB_NEG", units: 2, urgency: "URGENT", hospital: h2.name, district: "চট্টগ্রাম", expiresAt: daysFromNow(6) },
+      ],
+    });
+  }
 
   console.log("Seed সম্পন্ন। সব ডেমো অ্যাকাউন্টের পাসওয়ার্ড:", DEMO_PASSWORD);
 }

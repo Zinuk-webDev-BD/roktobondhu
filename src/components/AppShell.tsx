@@ -14,8 +14,14 @@ function DropMark() {
 }
 
 export default function AppShell({ user, children }: { user: CurrentUser; children: React.ReactNode }) {
-  const links = [{ href: "/dashboard", label: "স্টক বোর্ড" }];
-  if (user.role === "ADMIN") links.push({ href: "/admin/stock", label: "ব্যাগ ব্যবস্থাপনা" });
+    const links = [{ href: "/dashboard", label: "স্টক বোর্ড" }];
+  if (user.role === "DONOR") {
+    links.push({ href: "/dashboard/requests", label: "খোলা অনুরোধ" }, { href: "/dashboard/profile", label: "আমার প্রোফাইল" });
+  }
+  if (user.role === "HOSPITAL") links.push({ href: "/dashboard/requests", label: "রক্তের অনুরোধ" });
+  if (user.role === "ADMIN") {
+    links.push({ href: "/dashboard/requests", label: "সব অনুরোধ" }, { href: "/admin/stock", label: "ব্যাগ ব্যবস্থাপনা" });
+  }
 
   return (
     <div className="min-h-screen">

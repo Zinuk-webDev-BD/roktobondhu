@@ -8,8 +8,7 @@ export default function NavLinks({ links }: { links: { href: string; label: stri
   return (
     <nav aria-label="প্রধান মেনু" className="flex gap-1 overflow-x-auto">
       {links.map((l) => {
-        const active = path === l.href || path.startsWith(l.href + "/");
-        return (
+const active = l.href === "/dashboard" ? path === l.href : path === l.href || path.startsWith(l.href + "/");        return (
           <Link
             key={l.href}
             href={l.href}
