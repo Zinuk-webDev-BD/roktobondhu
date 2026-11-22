@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# রক্তবন্ধু
 
-## Getting Started
+রক্তদাতা, হাসপাতাল ও ব্লাড ব্যাংককে এক জায়গায় যুক্ত করার একটি ওয়েব ব্যবস্থাপনা সিস্টেম। এখানে রক্তের স্টক দেখা, জরুরি রক্তের অনুরোধ করা, উপযুক্ত দাতা খোঁজা ও ব্যাগ বরাদ্দ করা যায়।
 
-First, run the development server:
+## প্রযুক্তি
 
-```bash
+- Next.js (App Router) ও TypeScript
+- Tailwind CSS
+- Prisma ORM ও PostgreSQL (Neon)
+- Zod (সার্ভারে তথ্য যাচাই)
+
+## ভূমিকা অনুযায়ী কী করা যায়
+
+| ভূমিকা | কাজ |
+|---|---|
+| দাতা | নিজের প্রোফাইল ও যোগ্যতা দেখা, উপযুক্ত খোলা অনুরোধে সাড়া দেওয়া |
+| হাসপাতাল | রক্তের অনুরোধ তৈরি, সম্পাদনা, বাতিল, সম্পন্ন করা; সাড়া দেওয়া দাতার ফোন দেখা |
+| অ্যাডমিন | ব্যাগ যোগ ও ব্যবস্থাপনা, সব অনুরোধ দেখা, ব্যাগ বরাদ্দ, অডিট লগ, একযোগে পরীক্ষা |
+
+## ব্যবসায়িক নিয়ম
+
+**দাতার যোগ্যতা:** বয়স ১৮–৬০ বছর, ওজন কমপক্ষে ৫০ কেজি, শেষ দানের পর কমপক্ষে ৯০ দিন, এবং নিজে "অনুপলব্ধ" চিহ্নিত না করা। অযোগ্য হলে কারণসহ দেখানো হয়।
+
+**অনুরোধের নিয়ম:**
+- একবারে সর্বোচ্চ ১০টি ব্যাগ।
+- অতি জরুরি অনুরোধের মেয়াদ সর্বোচ্চ ৩ দিন, জরুরি ৭ দিন, সাধারণ ৩০ দিন।
+- একই রোগীর জন্য একই গ্রুপের খোলা অনুরোধ দ্বিতীয়বার জমা দেওয়া যায় না।
+- অবস্থা বদলের বৈধ পথ: অপেক্ষমাণ → ব্যাগ বরাদ্দ → সম্পন্ন; অপেক্ষমাণ বা বরাদ্দ অবস্থা থেকে বাতিল। সম্পন্ন, বাতিল ও মেয়াদ শেষ অবস্থা থেকে আর বদলানো যায় না।
+- মেয়াদ পেরোনো অপেক্ষমাণ অনুরোধ ও ব্যাগ স্বয়ংক্রিয়ভাবে "মেয়াদ শেষ" হয়।
+
+**গোপনীয়তা:** দাতা অনুরোধে রোগীর নাম দেখেন না। হাসপাতাল দাতার ফোন নম্বর শুধু তখনই দেখে, যখন দাতা নিজে সাড়া দেন।
+
+**দাতা ম্যাচিং:** রক্তের গ্রুপের সামঞ্জস্য, যোগ্যতার নিয়ম, জেলা ও শেষ দানের তারিখ দেখে সাজানো হয়। প্রতিটি সুপারিশের পাশে কারণ লেখা থাকে। অ্যাডমিন দেখতে পান কেন কোনো দাতা বাদ পড়লেন।
+
+## ব্যাগ বরাদ্দ ও একযোগে সুরক্ষা
+
+- হুবহু একই গ্রুপের ব্যাগ আগে, না থাকলে সামঞ্জস্যপূর্ণ গ্রুপ। যে ব্যাগের মেয়াদ আগে শেষ হবে সেটা আগে বরাদ্দ হয়।
+- পুরো বরাদ্দ একটি ডাটাবেস transaction-এ হয়। পর্যাপ্ত ব্যাগ না মিললে কিছুই বদলায় না।
+- ব্যাগ দখল হয় "অবস্থা প্রস্তুত এবং version মেলে" শর্তে, তাই দুজন একসঙ্গে একই ব্যাগ পায় না।
+- বরাদ্দ রেকর্ডে ব্যাগের পরিচয় UNIQUE, ফলে কোডে ভুল হলেও ডাটাবেস দ্বিতীয়বার বরাদ্দ আটকায়।
+- idempotency key: ডাবল ক্লিক বা নেটওয়ার্ক retry-তে একই বরাদ্দ দুইবার হয় না।
+- বরাদ্দ হওয়া অনুরোধ বাতিল করলে ব্যাগ আবার স্টকে ফেরে। সম্পন্ন করলে ব্যাগ "ব্যবহৃত" হয়।
+- অ্যাডমিনের "একযোগে পরীক্ষা" পেজে ১টি ব্যাগের জন্য ১০টি অনুরোধ একসঙ্গে ছাড়লে ঠিক ১টি সফল হয়।
+
+## নিরাপত্তা
+
+- সব ফর্ম ও API-তে সার্ভারে Zod দিয়ে তথ্য যাচাই, ফিল্ড অনুযায়ী বাংলা error বার্তা।
+- ভূমিকা অনুযায়ী API ও পেজের অনুমতি।
+- রিসোর্স-ভিত্তিক অনুমতি: অন্য হাসপাতালের অনুরোধ বদলানোর চেষ্টায় 403 আসে এবং চেষ্টাটি অডিট লগে ব্যর্থ এন্ট্রি হিসেবে থাকে।
+- অডিট লগে বরাদ্দ, বাতিল, সম্পন্ন, প্রোফাইল বদল ও আটকানো চেষ্টা জমা থাকে।
+- ব্যবহারকারীকে ভেতরের ত্রুটির বিবরণ না দেখিয়ে সাধারণ বাংলা বার্তা দেখানো হয়।
+- পাসওয়ার্ড হ্যাশ করে রাখা হয়, আসল `.env` GitHub-এ যায় না।
+
+## ডেমো অ্যাকাউন্ট
+
+সব অ্যাকাউন্টের পাসওয়ার্ড `Demo1234`। এগুলো শুধু পরীক্ষার জন্য।
+
+| ভূমিকা | ইমেইল |
+|---|---|
+| অ্যাডমিন | admin@roktobondhu.test |
+| হাসপাতাল | hospital1@roktobondhu.test, hospital2@roktobondhu.test |
+| দাতা | donor1@roktobondhu.test (O-, যোগ্য), donor3@roktobondhu.test (B+, ৯০ দিন পার হয়নি) |
+
+## স্থানীয়ভাবে চালানো
+
+1. প্রজেক্ট নামিয়ে নিন এবং নির্ভরতা বসান:
+```
+npm install
+```
+2. `.env.example` কপি করে `.env` নাম দিন এবং নিজের মান বসান। `JWT_SECRET` বানাতে:
+```
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+3. টেবিল বানান এবং নমুনা তথ্য ঢোকান:
+```
+npx prisma db push
+npm run db:seed
+```
+4. চালু করুন এবং `http://localhost:3000` খুলুন:
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## পরিবেশ ভেরিয়েবল
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| নাম | কাজ |
+|---|---|
+| DATABASE_URL | PostgreSQL সংযোগের ঠিকানা |
+| JWT_SECRET | সেশন স্বাক্ষরের গোপন মান, কমপক্ষে ৩২ অক্ষর |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## জানা সীমাবদ্ধতা
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- রক্তদান ও যোগ্যতার তথ্য সাধারণ সচেতনতার জন্য। চূড়ান্ত সিদ্ধান্ত ব্লাড ব্যাংকের চিকিৎসক নেন।
+- ব্লাড সেন্টারের ফোন নম্বর বাংলাদেশ রেড ক্রিসেন্ট সোসাইটির ওয়েবসাইট থেকে নেওয়া। নম্বর বদলাতে পারে, তাই যোগাযোগের আগে যাচাই করুন।
+- ডেমো অ্যাকাউন্ট ও নমুনা তথ্য শুধু প্রদর্শনের জন্য, আসল ডেটার ওপর seed চালাবেন না।
